@@ -8,7 +8,6 @@ namespace WinFormsApp2
         private string currentPath;
 
         public Form1()
-        
         {
             InitializeComponent();
             navigationHistory = new Stack<string>();
@@ -23,15 +22,11 @@ namespace WinFormsApp2
                 foreach (DriveInfo drive in drives)
                 {
                     if (drive.IsReady)
-                    {
                         comboBoxDrives.Items.Add(drive.Name);
-                    }
                 }
 
                 if (comboBoxDrives.Items.Count > 0)
-                {
                     comboBoxDrives.SelectedIndex = 0;
-                }
             }
             catch (Exception ex)
             {
@@ -52,15 +47,31 @@ namespace WinFormsApp2
 
         private void listBoxDirectories_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // Снимаем выделение с файлов, чтобы не было двух выделений одновременно
+            listBoxFiles.ClearSelected();
+
             if (listBoxDirectories.SelectedItem != null)
             {
                 string selected = listBoxDirectories.SelectedItem.ToString();
-                buttonShow.Enabled = (selected != "Нет доступных каталогов");
+                bool isValid = (selected != "Нет доступных каталогов");
+                buttonShow.Enabled = isValid;
+                buttonProperties.Enabled = isValid;
             }
             else
             {
                 buttonShow.Enabled = false;
+                buttonProperties.Enabled = false;
             }
+        }
+
+        // НОВЫЙ обработчик — выбор файла в listBoxFiles
+        private void listBoxFiles_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Снимаем выделение с папок
+            listBoxDirectories.ClearSelected();
+            buttonShow.Enabled = false;
+
+            buttonProperties.Enabled = (listBoxFiles.SelectedItem != null);
         }
 
         private void buttonShow_Click(object sender, EventArgs e)
@@ -69,11 +80,10 @@ namespace WinFormsApp2
             {
                 string selectedFolder = listBoxDirectories.SelectedItem.ToString();
                 navigationHistory.Push(currentPath);
-                string newPath;
-                if (currentPath.EndsWith("\\"))
-                    newPath = currentPath + selectedFolder;
-                else
-                    newPath = currentPath + "\\" + selectedFolder;
+
+                string newPath = currentPath.EndsWith("\\")
+                    ? currentPath + selectedFolder
+                    : currentPath + "\\" + selectedFolder;
 
                 currentPath = newPath;
                 LoadDirectoryContents(currentPath);
@@ -92,6 +102,36 @@ namespace WinFormsApp2
 
                 buttonBack.Enabled = (navigationHistory.Count > 0);
                 buttonShow.Enabled = false;
+                buttonProperties.Enabled = false;
+            }
+        }
+
+        // НОВЫЙ обработчик — кнопка "Свойства"
+        private void buttonProperties_Click(object sender, EventArgs e)
+        {
+            // Проверяем, выбрана ли папка
+            if (listBoxDirectories.SelectedItem != null)
+            {
+                string dirName = listBoxDirectories.SelectedItem.ToString();
+                string fullPath = currentPath.EndsWith("\\")
+                    ? currentPath + dirName
+                    : currentPath + "\\" + dirName;
+
+                PropertiesForm form = new PropertiesForm(fullPath, isDirectory: true);
+                form.ShowDialog();
+            }
+            // Проверяем, выбран ли файл
+            else if (listBoxFiles.SelectedItem != null)
+            {
+                // В listBox файлы хранятся как "name.ext (123 KB)" — извлекаем только имя
+                string fileEntry = listBoxFiles.SelectedItem.ToString();
+                string fileName = fileEntry.Substring(0, fileEntry.LastIndexOf(" ("));
+                string fullPath = currentPath.EndsWith("\\")
+                    ? currentPath + fileName
+                    : currentPath + "\\" + fileName;
+
+                PropertiesForm form = new PropertiesForm(fullPath, isDirectory: false);
+                form.ShowDialog();
             }
         }
 
@@ -120,9 +160,9 @@ namespace WinFormsApp2
                 }
 
                 if (directories.Length == 0)
-                {
                     listBoxDirectories.Items.Add("Нет доступных каталогов");
-                }
+
+                buttonProperties.Enabled = false;
             }
             catch (UnauthorizedAccessException)
             {
@@ -134,74 +174,8 @@ namespace WinFormsApp2
                     LoadDirectoryContents(currentPath);
                 }
             }
-
-        }
-        private async void buttonSearch_Click(object sender, EventArgs e)
-        {
-            string query = textBox1.Text.Trim();
-
-            if (string.IsNullOrEmpty(query))
-            {
-                MessageBox.Show("Введите поисковый запрос");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(currentPath))
-            {
-                MessageBox.Show("Сначала выберите диск");
-                return;
-            }
-
-            listBoxSearch.Items.Clear();
-            labelSearch.Text = "Идёт поиск...";
-            buttonSearch.Enabled = false;  // блокируем кнопку на время поиска
-
-            await Task.Run(() => SearchFiles(currentPath, query));
-
-            if (listBoxSearch.Items.Count == 0)
-                listBoxSearch.Items.Add("Ничего не найдено");
-
-            labelSearch.Text = $"Результатов найдено: {listBoxSearch.Items.Count}";
-            buttonSearch.Enabled = true;  // разблокируем кнопку
         }
 
-        private void SearchFiles(string path, string query)
-        {
-            try
-            {
-                string[] files = Directory.GetFiles(path, "*" + query + "*");
-                foreach (string file in files)
-                {
-                    // Invoke нужен чтобы обращаться к UI из другого потока
-                    listBoxSearch.Invoke(() =>
-                    {
-                        listBoxSearch.Items.Add("[Файл] " + file);
-                    });
-                }
-
-                string[] dirs = Directory.GetDirectories(path, "*" + query + "*");
-                foreach (string dir in dirs)
-                {
-                    listBoxSearch.Invoke(() =>
-                    {
-                        listBoxSearch.Items.Add("[Папка] " + dir);
-                    });
-                }
-
-                string[] allDirs = Directory.GetDirectories(path);
-                foreach (string dir in allDirs)
-                {
-                    SearchFiles(dir, query);
-                }
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // пропускаем папки без доступа
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Ошибка: " + ex.Message);
-            }
-        }
+        private void textBox1_TextChanged(object sender, EventArgs e) { }
     }
 }

@@ -2,15 +2,8 @@
 {
     partial class Form1
     {
-        /// <summary>
-        ///  Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,22 +15,15 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             buttonShow = new Button();
             buttonBack = new Button();
+            buttonProperties = new Button();  // НОВОЕ
             comboBoxDrives = new ComboBox();
             listBoxDirectories = new ListBox();
             listBoxFiles = new ListBox();
             labelCurrentPath = new Label();
-            textBox1 = new TextBox();
-            buttonSearch = new Button();
-            listBoxSearch = new ListBox();
-            labelSearch = new Label();
             SuspendLayout();
             // 
             // buttonShow
@@ -61,6 +47,17 @@
             buttonBack.Text = "НАЗАД";
             buttonBack.UseVisualStyleBackColor = true;
             buttonBack.Click += buttonBack_Click;
+            // 
+            // buttonProperties  НОВОЕ
+            // 
+            buttonProperties.Enabled = false;
+            buttonProperties.Location = new Point(290, 352);  // правее buttonShow
+            buttonProperties.Name = "buttonProperties";
+            buttonProperties.Size = new Size(90, 23);
+            buttonProperties.TabIndex = 6;
+            buttonProperties.Text = "СВОЙСТВА";
+            buttonProperties.UseVisualStyleBackColor = true;
+            buttonProperties.Click += buttonProperties_Click;
             // 
             // comboBoxDrives
             // 
@@ -87,6 +84,7 @@
             listBoxFiles.Name = "listBoxFiles";
             listBoxFiles.Size = new Size(199, 244);
             listBoxFiles.TabIndex = 4;
+            listBoxFiles.SelectedIndexChanged += listBoxFiles_SelectedIndexChanged;  // НОВОЕ
             // 
             // labelCurrentPath
             // 
@@ -97,55 +95,18 @@
             labelCurrentPath.TabIndex = 5;
             labelCurrentPath.Text = "Текущий путь:";
             // 
-            // textBox1
-            // 
-            textBox1.Location = new Point(579, 353);
-            textBox1.Name = "textBox1";
-            textBox1.Size = new Size(173, 23);
-            textBox1.TabIndex = 6;
-            // 
-            // buttonSearch
-            // 
-            buttonSearch.Location = new Point(614, 400);
-            buttonSearch.Name = "buttonSearch";
-            buttonSearch.Size = new Size(75, 23);
-            buttonSearch.TabIndex = 7;
-            buttonSearch.Text = "НАЙТИ";
-            buttonSearch.UseVisualStyleBackColor = true;
-            buttonSearch.Click += buttonSearch_Click;
-            // 
-            // listBoxSearch
-            // 
-            listBoxSearch.FormattingEnabled = true;
-            listBoxSearch.Location = new Point(569, 90);
-            listBoxSearch.Name = "listBoxSearch";
-            listBoxSearch.Size = new Size(198, 244);
-            listBoxSearch.TabIndex = 8;
-            // 
-            // labelSearch
-            // 
-            labelSearch.AutoSize = true;
-            labelSearch.Location = new Point(569, 43);
-            labelSearch.Name = "labelSearch";
-            labelSearch.Size = new Size(107, 15);
-            labelSearch.TabIndex = 9;
-            labelSearch.Text = "Результаты поска:";
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(labelSearch);
-            Controls.Add(listBoxSearch);
-            Controls.Add(buttonSearch);
-            Controls.Add(textBox1);
             Controls.Add(labelCurrentPath);
             Controls.Add(listBoxFiles);
             Controls.Add(listBoxDirectories);
             Controls.Add(comboBoxDrives);
             Controls.Add(buttonBack);
             Controls.Add(buttonShow);
+            Controls.Add(buttonProperties);  // НОВОЕ
             Name = "Form1";
             Text = "Form1";
             ResumeLayout(false);
@@ -156,13 +117,10 @@
 
         private Button buttonShow;
         private Button buttonBack;
+        private Button buttonProperties;  // НОВОЕ
         private ComboBox comboBoxDrives;
         private ListBox listBoxDirectories;
         private ListBox listBoxFiles;
         private Label labelCurrentPath;
-        private TextBox textBox1;
-        private Button buttonSearch;
-        private ListBox listBoxSearch;
-        private Label labelSearch;
     }
 }
